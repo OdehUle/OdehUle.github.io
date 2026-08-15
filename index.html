@@ -200,9 +200,9 @@
     margin: 16px 0;
     color: var(--paper-dim);
   }
-  .stat-block .row { display: flex; justify-content: space-between; padding: 2px 0; }
+  .stat-block .row { display: flex; justify-content: space-between; padding: 2px 0; gap: 12px; }
   .stat-block .row span:first-child { color: var(--muted); }
-  .stat-block .row span:last-child { color: var(--paper); }
+  .stat-block .row span:last-child { color: var(--paper); text-align: right; }
 
   .tags {
     display: flex;
@@ -220,7 +220,7 @@
     border-radius: 5px;
   }
 
-  .links { display: flex; gap: 18px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+  .links { display: flex; gap: 18px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; flex-wrap: wrap; }
   .links a { text-decoration: none; }
   .links a:hover { text-decoration: underline; }
   .links .disabled { color: var(--muted); pointer-events: none; }
@@ -367,6 +367,35 @@
       <a href="#" class="disabled">→ live dashboard (add link)</a>
     </div>
   </article>
+
+  <article class="project">
+    <div class="project-head">
+      <div>
+        <h3>US Baby Names: Naming Trends & Structure</h3>
+        <p class="tagline">15 years of SSA naming data: diversity index, gender-neutral naming shifts, trend velocity, and fuzzy-matched name-family clustering.</p>
+      </div>
+      <span class="status live">live</span>
+    </div>
+
+    <div class="stat-block">
+      <div class="row"><span>rows</span><span>488,343</span></div>
+      <div class="row"><span>unique_names</span><span>61,153</span></div>
+      <div class="row"><span>years</span><span>2011–2025</span></div>
+    </div>
+
+    <div class="tags">
+      <span class="tag">python</span>
+      <span class="tag">scipy</span>
+      <span class="tag">rapidfuzz</span>
+      <span class="tag">power-bi</span>
+    </div>
+
+    <div class="links">
+      <a href="https://github.com/OdehUle/us-babynames-2011-2025-analytics" target="_blank" rel="noopener">→ github repo</a>
+      <a href="https://odehule.github.io/babynames-dashboard.html" target="_blank" rel="noopener">→ live dashboard</a>
+    </div>
+  </article>
+
 </section>
 
 <section id="about" class="wrap">
@@ -378,7 +407,7 @@
     </div>
     <div class="skill-group">
       <span class="k">Libraries</span>
-      <p>pandas, numpy, scipy, scikit-learn, seaborn, matplotlib</p>
+      <p>pandas, numpy, scipy, scikit-learn, rapidfuzz, seaborn, matplotlib</p>
     </div>
     <div class="skill-group">
       <span class="k">Tools</span>
@@ -394,7 +423,6 @@
 <footer id="contact" class="wrap">
   <p class="section-label" style="justify-content:center; display:flex;">Contact</p>
   <div class="contact-links">
-    <!-- TODO: fill in your real links -->
     <a href="https://github.com/OdehUle" target="_blank" rel="noopener">GitHub</a>
     <a href="https://www.linkedin.com/in/mosesudah" target="_blank" rel="noopener">LinkedIn</a>
     <a href="mailto:udahmoses434@gmail.com">Email</a>
