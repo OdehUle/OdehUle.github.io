@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>US Baby Names Analytics — OdehUle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --ink: #10151c;
+    --ink-soft: #161d26;
+    --card: #171f29;
+    --card-border: #29323d;
+    --paper: #edeae0;
+    --paper-dim: #b9b4a5;
+    --muted: #7c8794;
+    --amber: #d9a441;
+    --teal: #4fa8a0;
+    --blue: #6f9bd8;
+    --lightblue: #8fd0e0;
+    --green: #7bbf6a;
+    --red: #d8735f;
+    --purple: #9a8fd1;
+    --pink: #d18fb0;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--teal); }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  header {
+    background: var(--ink-soft);
+    border-bottom: 1px solid var(--card-border);
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 34px; height: 34px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 2px;
+  }
+  .logo span { width: 3px; background: var(--amber); border-radius: 1px; }
+  .logo span:nth-child(1) { height: 8px; }
+  .logo span:nth-child(2) { height: 14px; background: var(--teal); }
+  .logo span:nth-child(3) { height: 11px; }
+  .logo span:nth-child(4) { height: 16px; background: var(--teal); }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin: 0; }
+  .subtitle { color: var(--paper-dim); font-size: 12px; margin-top: 2px; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.03em; }
+  .back-link { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--paper-dim); text-decoration: none; }
+  .back-link:hover { color: var(--teal); }
+
+  main { max-width: 1280px; margin: 0 auto; padding: 24px 28px 60px; }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    border-left: 3px solid var(--teal);
+  }
+  .kpi.amber-border { border-left-color: var(--amber); }
+  .kpi.blue-border { border-left-color: var(--blue); }
+  .kpi.green-border { border-left-color: var(--green); }
+  .kpi-label { font-size: 12px; color: var(--paper-dim); font-family: 'IBM Plex Mono', monospace; margin-bottom: 6px; }
+  .kpi-value { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 600; }
+  .kpi-value.small { font-size: 18px; }
+  .toggle-row { display: flex; gap: 6px; margin-top: 8px; }
+  .toggle-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    background: var(--ink-soft);
+    border: 1px solid var(--card-border);
+    color: var(--paper-dim);
+    padding: 3px 9px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .toggle-btn.active { color: var(--ink); background: var(--amber); border-color: var(--amber); font-weight: 600; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 16px 18px 12px;
+    margin-bottom: 14px;
+  }
+  .panel-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .panel canvas { max-height: 220px; }
+
+  .year-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--paper-dim);
+  }
+  input[type="range"] { accent-color: var(--amber); width: 100px; }
+
+  footer {
+    text-align: center;
+    padding: 30px 0 10px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo"><span></span><span></span><span></span><span></span></div>
+    <div>
+      <h1>U.S. Baby Names Analytics</h1>
+      <div class="subtitle">DEMOGRAPHIC SHIFTS, NAMING DIVERSITY &amp; UNISEX TRENDS (2011&ndash;2025)</div>
+    </div>
+  </div>
+  <a class="back-link" href="https://odehule.github.io">&larr; back to portfolio</a>
+</header>
+
+<main>
+
+  <div class="kpi-row">
+    <div class="kpi amber-border">
+      <div class="kpi-label">TOTAL BIRTHS</div>
+      <div class="kpi-value" id="kpi-total-births">--</div>
+    </div>
+    <div class="kpi blue-border">
+      <div class="kpi-label">UNIQUE NAMES</div>
+      <div class="kpi-value" id="kpi-unique-names">--</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">YEARS COVERED</div>
+      <div class="kpi-value small" id="kpi-years">--</div>
+    </div>
+    <div class="kpi green-border">
+      <div class="kpi-label">DIVERSITY CHANGE (ENTROPY)</div>
+      <div class="kpi-value small" id="kpi-diversity">--</div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" data-sex="M" id="btn-diversity-m">Male</button>
+        <button class="toggle-btn" data-sex="F" id="btn-diversity-f">Female</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <p class="panel-title">Diversity index by year</p>
+      <canvas id="chart-diversity"></canvas>
+    </div>
+    <div class="panel">
+      <p class="panel-title">Total births by year</p>
+      <canvas id="chart-births"></canvas>
+    </div>
+    <div class="panel">
+      <p class="panel-title">
+        Top names
+        <span class="year-slider-row">
+          <input type="range" id="year-slider" min="2011" max="2025" value="2025" step="1">
+          <span id="year-slider-label">2025</span>
+        </span>
+      </p>
+      <canvas id="chart-topnames"></canvas>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <p class="panel-title">Fastest movers (last 5 yrs)</p>
+      <canvas id="chart-movers"></canvas>
+    </div>
+    <div class="panel">
+      <p class="panel-title">Unisex shift trend</p>
+      <canvas id="chart-unisex"></canvas>
+    </div>
+    <div class="panel">
+      <p class="panel-title">
+        Name family trend
+        <span class="toggle-row" style="margin-top:0;">
+          <button class="toggle-btn active" id="btn-family-yden">-yden</button>
+          <button class="toggle-btn" id="btn-family-spelling">Aiden family</button>
+        </span>
+      </p>
+      <canvas id="chart-family"></canvas>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Source: US SSA National Names Files (2011&ndash;2025) &middot;
+  <a href="https://github.com/OdehUle/us-babynames-2011-2025-analytics" target="_blank" rel="noopener">github.com/OdehUle/us-babynames-2011-2025-analytics</a>
+</footer>
+
+<script>
+const DATA = {"kpis": {"total_births": 52701388, "unique_names": 61153, "years": "2011-2025", "entropy_change_male": 4.2, "entropy_change_female": 0.6}, "births_by_year": [{"year": 2011, "F": 1759066, "M": 1899252}, {"year": 2012, "F": 1761053, "M": 1896946}, {"year": 2013, "F": 1754746, "M": 1891581}, {"year": 2014, "F": 1786355, "M": 1920871}, {"year": 2015, "F": 1785098, "M": 1916743}, {"year": 2016, "F": 1772022, "M": 1897738}, {"year": 2017, "F": 1726461, "M": 1850956}, {"year": 2018, "F": 1701074, "M": 1816158}, {"year": 2019, "F": 1678366, "M": 1794216}, {"year": 2020, "F": 1616549, "M": 1726076}, {"year": 2021, "F": 1640861, "M": 1749482}, {"year": 2022, "F": 1640131, "M": 1746008}, {"year": 2023, "F": 1604582, "M": 1710576}, {"year": 2024, "F": 1620190, "M": 1722888}, {"year": 2025, "F": 1607267, "M": 1708076}], "top_names_by_year": {"2011": [{"name": "Sophia", "births": 21886}, {"name": "Jacob", "births": 20426}, {"name": "Isabella", "births": 19957}, {"name": "Mason", "births": 19619}, {"name": "Emma", "births": 18858}, {"name": "Jayden", "births": 18096}, {"name": "William", "births": 17390}, {"name": "Olivia", "births": 17352}, {"name": "Noah", "births": 16962}, {"name": "Michael", "births": 16859}], "2012": [{"name": "Sophia", "births": 22354}, {"name": "Emma", "births": 20996}, {"name": "Isabella", "births": 19156}, {"name": "Jacob", "births": 19136}, {"name": "Mason", "births": 19077}, {"name": "Ethan", "births": 17719}, {"name": "Noah", "births": 17463}, {"name": "Olivia", "births": 17351}, {"name": "Jayden", "births": 16978}, {"name": "William", "births": 16936}], "2013": [{"name": "Sophia", "births": 21281}, {"name": "Emma", "births": 20991}, {"name": "Olivia", "births": 18478}, {"name": "Noah", "births": 18371}, {"name": "Jacob", "births": 18224}, {"name": "Liam", "births": 18175}, {"name": "Mason", "births": 17803}, {"name": "Isabella", "births": 17707}, {"name": "William", "births": 16683}, {"name": "Ethan", "births": 16277}], "2014": [{"name": "Emma", "births": 20982}, {"name": "Olivia", "births": 19863}, {"name": "Noah", "births": 19451}, {"name": "Sophia", "births": 18663}, {"name": "Liam", "births": 18520}, {"name": "Mason", "births": 17303}, {"name": "Isabella", "births": 17158}, {"name": "Jacob", "births": 16936}, {"name": "William", "births": 16874}, {"name": "Ethan", "births": 15768}], "2015": [{"name": "Emma", "births": 20497}, {"name": "Noah", "births": 19817}, {"name": "Olivia", "births": 19738}, {"name": "Liam", "births": 18431}, {"name": "Sophia", "births": 17468}, {"name": "Mason", "births": 16767}, {"name": "Ava", "births": 16435}, {"name": "Jacob", "births": 16028}, {"name": "William", "births": 15965}, {"name": "Isabella", "births": 15688}], "2016": [{"name": "Emma", "births": 19568}, {"name": "Olivia", "births": 19430}, {"name": "Noah", "births": 19322}, {"name": "Liam", "births": 18296}, {"name": "Ava", "births": 16365}, {"name": "Sophia", "births": 16203}, {"name": "William", "births": 15830}, {"name": "Mason", "births": 15375}, {"name": "James", "births": 14987}, {"name": "Isabella", "births": 14875}], "2017": [{"name": "Emma", "births": 19887}, {"name": "Liam", "births": 18912}, {"name": "Olivia", "births": 18790}, {"name": "Noah", "births": 18683}, {"name": "Ava", "births": 16030}, {"name": "Isabella", "births": 15275}, {"name": "Logan", "births": 15167}, {"name": "William", "births": 15064}, {"name": "Sophia", "births": 14966}, {"name": "James", "births": 14439}], "2018": [{"name": "Liam", "births": 20001}, {"name": "Emma", "births": 18833}, {"name": "Noah", "births": 18616}, {"name": "Olivia", "births": 18070}, {"name": "Ava", "births": 15044}, {"name": "William", "births": 14658}, {"name": "Isabella", "births": 14590}, {"name": "Sophia", "births": 14029}, {"name": "James", "births": 13695}, {"name": "Logan", "births": 13525}], "2019": [{"name": "Liam", "births": 20661}, {"name": "Noah", "births": 19397}, {"name": "Olivia", "births": 18589}, {"name": "Emma", "births": 17237}, {"name": "Ava", "births": 14549}, {"name": "Oliver", "births": 13989}, {"name": "Sophia", "births": 13837}, {"name": "William", "births": 13670}, {"name": "Elijah", "births": 13457}, {"name": "Isabella", "births": 13423}], "2020": [{"name": "Liam", "births": 19898}, {"name": "Noah", "births": 18772}, {"name": "Olivia", "births": 17704}, {"name": "Emma", "births": 15742}, {"name": "Oliver", "births": 14300}, {"name": "Elijah", "births": 13269}, {"name": "Ava", "births": 13212}, {"name": "Sophia", "births": 13116}, {"name": "Charlotte", "births": 13107}, {"name": "Amelia", "births": 12808}], "2021": [{"name": "Liam", "births": 20454}, {"name": "Noah", "births": 19337}, {"name": "Olivia", "births": 17856}, {"name": "Emma", "births": 15563}, {"name": "Oliver", "births": 14739}, {"name": "Charlotte", "births": 13381}, {"name": "Amelia", "births": 13049}, {"name": "Ava", "births": 12881}, {"name": "Elijah", "births": 12873}, {"name": "Sophia", "births": 12595}], "2022": [{"name": "Liam", "births": 20605}, {"name": "Noah", "births": 19238}, {"name": "Olivia", "births": 16686}, {"name": "Oliver", "births": 15204}, {"name": "Emma", "births": 14527}, {"name": "Charlotte", "births": 12962}, {"name": "Amelia", "births": 12428}, {"name": "Sophia", "births": 12394}, {"name": "James", "births": 12204}, {"name": "Elijah", "births": 12126}], "2023": [{"name": "Liam", "births": 20934}, {"name": "Noah", "births": 19574}, {"name": "Olivia", "births": 15335}, {"name": "Oliver", "births": 14820}, {"name": "Emma", "births": 13607}, {"name": "Charlotte", "births": 12652}, {"name": "Amelia", "births": 12372}, {"name": "Sophia", "births": 12008}, {"name": "James", "births": 11818}, {"name": "Elijah", "births": 11543}], "2024": [{"name": "Liam", "births": 22288}, {"name": "Noah", "births": 20951}, {"name": "Oliver", "births": 15421}, {"name": "Olivia", "births": 14788}, {"name": "Emma", "births": 13541}, {"name": "Amelia", "births": 12795}, {"name": "Charlotte", "births": 12610}, {"name": "Mia", "births": 12169}, {"name": "Sophia", "births": 12126}, {"name": "Theodore", "births": 12082}], "2025": [{"name": "Liam", "births": 20846}, {"name": "Noah", "births": 20826}, {"name": "Oliver", "births": 14963}, {"name": "Olivia", "births": 13554}, {"name": "Charlotte", "births": 13408}, {"name": "Theodore", "births": 13362}, {"name": "Emma", "births": 12768}, {"name": "Amelia", "births": 12705}, {"name": "Sophia", "births": 12572}, {"name": "Henry", "births": 12040}]}, "diversity": [{"year": 2011, "sex": "F", "entropy": 10.983052201200218, "hhi": 0.0019106037361068}, {"year": 2011, "sex": "M", "entropy": 10.016388614297895, "hhi": 0.0029218341780303}, {"year": 2012, "sex": "F", "entropy": 10.99446065750703, "hhi": 0.001899410660298}, {"year": 2012, "sex": "M", "entropy": 10.047858728788128, "hhi": 0.0028440110012798}, {"year": 2013, "sex": "F", "entropy": 10.964713240261576, "hhi": 0.0019035570336045}, {"year": 2013, "sex": "M", "entropy": 10.053437059403528, "hhi": 0.00277735046179}, {"year": 2014, "sex": "F", "entropy": 10.95509872663406, "hhi": 0.0018684325201327}, {"year": 2014, "sex": "M", "entropy": 10.082101615020806, "hhi": 0.0026980836083342}, {"year": 2015, "sex": "F", "entropy": 10.957341210689773, "hhi": 0.0018599804958408}, {"year": 2015, "sex": "M", "entropy": 10.11151296381338, "hhi": 0.0026246548654449}, {"year": 2016, "sex": "F", "entropy": 10.967068216101175, "hhi": 0.0018253274997522}, {"year": 2016, "sex": "M", "entropy": 10.156342446109868, "hhi": 0.00254446881135}, {"year": 2017, "sex": "F", "entropy": 10.97198906233744, "hhi": 0.0018175869671393}, {"year": 2017, "sex": "M", "entropy": 10.19649779515652, "hhi": 0.0024799918253795}, {"year": 2018, "sex": "F", "entropy": 10.9784760996495, "hhi": 0.0017763059709999}, {"year": 2018, "sex": "M", "entropy": 10.239694361801734, "hhi": 0.0024052145209409}, {"year": 2019, "sex": "F", "entropy": 10.996593517492071, "hhi": 0.0017447579803099}, {"year": 2019, "sex": "M", "entropy": 10.284899780736104, "hhi": 0.0023430392235671}, {"year": 2020, "sex": "F", "entropy": 11.0134327545818, "hhi": 0.0016905541101783}, {"year": 2020, "sex": "M", "entropy": 10.334162441111747, "hhi": 0.002253119943386}, {"year": 2021, "sex": "F", "entropy": 11.033756241070986, "hhi": 0.0016486321704693}, {"year": 2021, "sex": "M", "entropy": 10.367238955066014, "hhi": 0.002204516471784}, {"year": 2022, "sex": "F", "entropy": 11.069307447590182, "hhi": 0.0015840105897332}, {"year": 2022, "sex": "M", "entropy": 10.419908807336174, "hhi": 0.0021431344612455}, {"year": 2023, "sex": "F", "entropy": 11.09622913836559, "hhi": 0.0015342853844068}, {"year": 2023, "sex": "M", "entropy": 10.448985876238456, "hhi": 0.0021153216838328}, {"year": 2024, "sex": "F", "entropy": 11.082818709620849, "hhi": 0.0015351421723289}, {"year": 2024, "sex": "M", "entropy": 10.446540126237664, "hhi": 0.0021431019158662}, {"year": 2025, "sex": "F", "entropy": 11.048799742427938, "hhi": 0.0015557512333603}, {"year": 2025, "sex": "M", "entropy": 10.432670895887854, "hhi": 0.0021424901513547}], "velocity_risers": [{"name": "Ailany", "sex": "F", "slope": 0.0010162009271467}, {"name": "Lainey", "sex": "F", "slope": 0.000778913630488}, {"name": "Eliana", "sex": "F", "slope": 0.0005800318269562}, {"name": "Theodore", "sex": "M", "slope": 0.000546861451933}, {"name": "Thiago", "sex": "M", "slope": 0.0004822495384401}], "velocity_decliners": [{"name": "Ava", "sex": "F", "slope": -0.0007471521154262}, {"name": "Olivia", "sex": "F", "slope": -0.0005946133081249}, {"name": "Aiden", "sex": "M", "slope": -0.0004457502998402}, {"name": "Logan", "sex": "M", "slope": -0.0004278187302217}, {"name": "Mason", "sex": "M", "slope": -0.0003883324396458}], "unisex_top5": [{"name": "Alexis", "year": 2011, "male_ratio": 0.184788029925187}, {"name": "Alexis", "year": 2012, "male_ratio": 0.2249459264599855}, {"name": "Alexis", "year": 2013, "male_ratio": 0.1992971887550201}, {"name": "Alexis", "year": 2014, "male_ratio": 0.216709701217263}, {"name": "Alexis", "year": 2015, "male_ratio": 0.2246049661399548}, {"name": "Alexis", "year": 2016, "male_ratio": 0.2635891832832559}, {"name": "Alexis", "year": 2017, "male_ratio": 0.2792636332059743}, {"name": "Alexis", "year": 2018, "male_ratio": 0.2898799313893653}, {"name": "Alexis", "year": 2019, "male_ratio": 0.335}, {"name": "Alexis", "year": 2020, "male_ratio": 0.3735597331716191}, {"name": "Alexis", "year": 2021, "male_ratio": 0.4005053695514845}, {"name": "Alexis", "year": 2022, "male_ratio": 0.4319793681495809}, {"name": "Alexis", "year": 2023, "male_ratio": 0.4838224228743416}, {"name": "Alexis", "year": 2024, "male_ratio": 0.512}, {"name": "Alexis", "year": 2025, "male_ratio": 0.5163572060123784}, {"name": "Blake", "year": 2011, "male_ratio": 0.945304611242006}, {"name": "Blake", "year": 2012, "male_ratio": 0.9375193798449613}, {"name": "Blake", "year": 2013, "male_ratio": 0.9133387227162488}, {"name": "Blake", "year": 2014, "male_ratio": 0.9080565241328684}, {"name": "Blake", "year": 2015, "male_ratio": 0.8491776975531489}, {"name": "Blake", "year": 2016, "male_ratio": 0.7497721057429353}, {"name": "Blake", "year": 2017, "male_ratio": 0.6890579900288638}, {"name": "Blake", "year": 2018, "male_ratio": 0.6754313886606409}, {"name": "Blake", "year": 2019, "male_ratio": 0.6066874468688014}, {"name": "Blake", "year": 2020, "male_ratio": 0.5791320995532865}, {"name": "Blake", "year": 2021, "male_ratio": 0.5515802027429935}, {"name": "Blake", "year": 2022, "male_ratio": 0.521954440409376}, {"name": "Blake", "year": 2023, "male_ratio": 0.5042201834862385}, {"name": "Blake", "year": 2024, "male_ratio": 0.4748382458662832}, {"name": "Blake", "year": 2025, "male_ratio": 0.5106382978723404}, {"name": "Chandler", "year": 2011, "male_ratio": 0.8145695364238411}, {"name": "Chandler", "year": 2012, "male_ratio": 0.7878787878787878}, {"name": "Chandler", "year": 2013, "male_ratio": 0.7749712973593571}, {"name": "Chandler", "year": 2014, "male_ratio": 0.7662473794549266}, {"name": "Chandler", "year": 2015, "male_ratio": 0.746177370030581}, {"name": "Chandler", "year": 2016, "male_ratio": 0.7119565217391305}, {"name": "Chandler", "year": 2017, "male_ratio": 0.704840613931523}, {"name": "Chandler", "year": 2018, "male_ratio": 0.6881067961165048}, {"name": "Chandler", "year": 2019, "male_ratio": 0.6282722513089005}, {"name": "Chandler", "year": 2020, "male_ratio": 0.6511936339522546}, {"name": "Chandler", "year": 2021, "male_ratio": 0.6028833551769331}, {"name": "Chandler", "year": 2022, "male_ratio": 0.5980662983425414}, {"name": "Chandler", "year": 2023, "male_ratio": 0.5691411935953421}, {"name": "Chandler", "year": 2024, "male_ratio": 0.5444785276073619}, {"name": "Chandler", "year": 2025, "male_ratio": 0.5360501567398119}, {"name": "Drew", "year": 2011, "male_ratio": 0.8787446504992867}, {"name": "Drew", "year": 2012, "male_ratio": 0.8411405295315683}, {"name": "Drew", "year": 2013, "male_ratio": 0.8391459074733096}, {"name": "Drew", "year": 2014, "male_ratio": 0.8329411764705882}, {"name": "Drew", "year": 2015, "male_ratio": 0.8079350766456267}, {"name": "Drew", "year": 2016, "male_ratio": 0.7874015748031497}, {"name": "Drew", "year": 2017, "male_ratio": 0.7670454545454546}, {"name": "Drew", "year": 2018, "male_ratio": 0.7790123456790123}, {"name": "Drew", "year": 2019, "male_ratio": 0.75}, {"name": "Drew", "year": 2020, "male_ratio": 0.6641975308641975}, {"name": "Drew", "year": 2021, "male_ratio": 0.630718954248366}, {"name": "Drew", "year": 2022, "male_ratio": 0.6311111111111111}, {"name": "Drew", "year": 2023, "male_ratio": 0.5973884657236126}, {"name": "Drew", "year": 2024, "male_ratio": 0.5769633507853403}, {"name": "Drew", "year": 2025, "male_ratio": 0.575531914893617}, {"name": "Parker", "year": 2011, "male_ratio": 0.8584859782784893}, {"name": "Parker", "year": 2012, "male_ratio": 0.8398498592430403}, {"name": "Parker", "year": 2013, "male_ratio": 0.8251382019202793}, {"name": "Parker", "year": 2014, "male_ratio": 0.8026943586865002}, {"name": "Parker", "year": 2015, "male_ratio": 0.7892206846321923}, {"name": "Parker", "year": 2016, "male_ratio": 0.7614294913071474}, {"name": "Parker", "year": 2017, "male_ratio": 0.7457454050374405}, {"name": "Parker", "year": 2018, "male_ratio": 0.6943337376537861}, {"name": "Parker", "year": 2019, "male_ratio": 0.6640040788579198}, {"name": "Parker", "year": 2020, "male_ratio": 0.6397182153639718}, {"name": "Parker", "year": 2021, "male_ratio": 0.6137270550678372}, {"name": "Parker", "year": 2022, "male_ratio": 0.6157894736842106}, {"name": "Parker", "year": 2023, "male_ratio": 0.6237915779125021}, {"name": "Parker", "year": 2024, "male_ratio": 0.5888291809151603}, {"name": "Parker", "year": 2025, "male_ratio": 0.5782471312156994}], "yden_family_trend": [{"year": 2011, "births": 50147}, {"year": 2012, "births": 47773}, {"year": 2013, "births": 45521}, {"year": 2014, "births": 42148}, {"year": 2015, "births": 38598}, {"year": 2016, "births": 34942}, {"year": 2017, "births": 32569}, {"year": 2018, "births": 30189}, {"year": 2019, "births": 27744}, {"year": 2020, "births": 25682}, {"year": 2021, "births": 24397}, {"year": 2022, "births": 23133}, {"year": 2023, "births": 20770}, {"year": 2024, "births": 19124}, {"year": 2025, "births": 17203}], "largest_spelling_family": {"names": ["Caden", "Camden", "Cayden", "Hayden", "Jade", "Jaden", "Jayden", "Kaden", "Kaiden", "Kayden", "Zayden"], "trend": [{"year": 2011, "births": 50819}, {"year": 2012, "births": 47571}, {"year": 2013, "births": 47254}, {"year": 2014, "births": 44574}, {"year": 2015, "births": 41405}, {"year": 2016, "births": 37714}, {"year": 2017, "births": 35179}, {"year": 2018, "births": 33396}, {"year": 2019, "births": 31334}, {"year": 2020, "births": 29748}, {"year": 2021, "births": 28902}, {"year": 2022, "births": 28036}, {"year": 2023, "births": 26261}, {"year": 2024, "births": 24501}, {"year": 2025, "births": 22536}]}};
+
+Chart.defaults.color = '#b9b4a5';
+Chart.defaults.borderColor = '#29323d';
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size = 11;
+
+function fmtNum(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n;
+}
+
+// ---------- KPIs ----------
+document.getElementById('kpi-total-births').textContent = (DATA.kpis.total_births/1000000).toFixed(1) + 'M';
+document.getElementById('kpi-unique-names').textContent = fmtNum(DATA.kpis.unique_names);
+document.getElementById('kpi-years').textContent = DATA.kpis.years.replace('-', ' \u2013 ');
+
+function updateDiversityKpi(sex) {
+  const val = sex === 'M' ? DATA.kpis.entropy_change_male : DATA.kpis.entropy_change_female;
+  document.getElementById('kpi-diversity').textContent = '+' + val + '%';
+}
+updateDiversityKpi('M');
+document.getElementById('btn-diversity-m').addEventListener('click', () => {
+  updateDiversityKpi('M');
+  document.getElementById('btn-diversity-m').classList.add('active');
+  document.getElementById('btn-diversity-f').classList.remove('active');
+});
+document.getElementById('btn-diversity-f').addEventListener('click', () => {
+  updateDiversityKpi('F');
+  document.getElementById('btn-diversity-f').classList.add('active');
+  document.getElementById('btn-diversity-m').classList.remove('active');
+});
+
+const baseOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { labels: { boxWidth: 10, padding: 10 } } },
+  scales: {
+    x: { grid: { color: '#20272f' } },
+    y: { grid: { color: '#20272f' } }
+  }
+};
+
+// ---------- Diversity chart ----------
+const divF = DATA.diversity.filter(d => d.sex === 'F').sort((a,b) => a.year - b.year);
+const divM = DATA.diversity.filter(d => d.sex === 'M').sort((a,b) => a.year - b.year);
+new Chart(document.getElementById('chart-diversity'), {
+  type: 'line',
+  data: {
+    labels: divF.map(d => d.year),
+    datasets: [
+      { label: 'Female', data: divF.map(d => d.entropy), borderColor: getComputedStyle(document.documentElement).getPropertyValue('--lightblue'), tension: 0.3, pointRadius: 0 },
+      { label: 'Male', data: divM.map(d => d.entropy), borderColor: getComputedStyle(document.documentElement).getPropertyValue('--blue'), tension: 0.3, pointRadius: 0 }
+    ]
+  },
+  options: baseOpts
+});
+
+// ---------- Births chart ----------
+const byYear = DATA.births_by_year.sort((a,b) => a.year - b.year);
+new Chart(document.getElementById('chart-births'), {
+  type: 'line',
+  data: {
+    labels: byYear.map(d => d.year),
+    datasets: [
+      { label: 'Female', data: byYear.map(d => d.F), borderColor: getComputedStyle(document.documentElement).getPropertyValue('--lightblue'), tension: 0.3, pointRadius: 0 },
+      { label: 'Male', data: byYear.map(d => d.M), borderColor: getComputedStyle(document.documentElement).getPropertyValue('--blue'), tension: 0.3, pointRadius: 0 }
+    ]
+  },
+  options: baseOpts
+});
+
+// ---------- Top names (interactive year slider) ----------
+let topNamesChart = new Chart(document.getElementById('chart-topnames'), {
+  type: 'bar',
+  data: {
+    labels: DATA.top_names_by_year['2025'].map(d => d.name),
+    datasets: [{ label: 'Births', data: DATA.top_names_by_year['2025'].map(d => d.births), backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--teal') }]
+  },
+  options: { ...baseOpts, indexAxis: 'y', plugins: { legend: { display: false } } }
+});
+document.getElementById('year-slider').addEventListener('input', (e) => {
+  const year = e.target.value;
+  document.getElementById('year-slider-label').textContent = year;
+  const yearData = DATA.top_names_by_year[year];
+  topNamesChart.data.labels = yearData.map(d => d.name);
+  topNamesChart.data.datasets[0].data = yearData.map(d => d.births);
+  topNamesChart.update();
+});
+
+// ---------- Fastest movers (diverging) ----------
+const movers = [...DATA.velocity_risers].reverse().concat(DATA.velocity_decliners);
+new Chart(document.getElementById('chart-movers'), {
+  type: 'bar',
+  data: {
+    labels: movers.map(d => d.name),
+    datasets: [{
+      label: 'Slope',
+      data: movers.map(d => d.slope),
+      backgroundColor: movers.map(d => d.slope >= 0 ? getComputedStyle(document.documentElement).getPropertyValue('--green') : getComputedStyle(document.documentElement).getPropertyValue('--red'))
+    }]
+  },
+  options: { ...baseOpts, indexAxis: 'y', plugins: { legend: { display: false } } }
+});
+
+// ---------- Unisex shift trend ----------
+const unisexNames = [...new Set(DATA.unisex_top5.map(d => d.name))];
+const unisexColors = { Alexis: '--blue', Blake: '--teal', Chandler: '--amber', Drew: '--purple', Parker: '--pink' };
+new Chart(document.getElementById('chart-unisex'), {
+  type: 'line',
+  data: {
+    labels: [...new Set(DATA.unisex_top5.map(d => d.year))].sort((a,b)=>a-b),
+    datasets: unisexNames.map(name => {
+      const rows = DATA.unisex_top5.filter(d => d.name === name).sort((a,b) => a.year - b.year);
+      return {
+        label: name,
+        data: rows.map(d => d.male_ratio),
+        borderColor: getComputedStyle(document.documentElement).getPropertyValue(unisexColors[name] || '--paper'),
+        tension: 0.3,
+        pointRadius: 0
+      };
+    })
+  },
+  options: baseOpts
+});
+
+// ---------- Name family trend (toggle) ----------
+let familyChart = new Chart(document.getElementById('chart-family'), {
+  type: 'line',
+  data: {
+    labels: DATA.yden_family_trend.map(d => d.year),
+    datasets: [{
+      label: '-yden cluster',
+      data: DATA.yden_family_trend.map(d => d.births),
+      borderColor: getComputedStyle(document.documentElement).getPropertyValue('--amber'),
+      backgroundColor: 'rgba(217,164,65,0.15)',
+      fill: true,
+      tension: 0.3,
+      pointRadius: 0
+    }]
+  },
+  options: baseOpts
+});
+document.getElementById('btn-family-yden').addEventListener('click', () => {
+  familyChart.data.labels = DATA.yden_family_trend.map(d => d.year);
+  familyChart.data.datasets[0].data = DATA.yden_family_trend.map(d => d.births);
+  familyChart.data.datasets[0].label = '-yden cluster';
+  familyChart.update();
+  document.getElementById('btn-family-yden').classList.add('active');
+  document.getElementById('btn-family-spelling').classList.remove('active');
+});
+document.getElementById('btn-family-spelling').addEventListener('click', () => {
+  const t = DATA.largest_spelling_family.trend;
+  familyChart.data.labels = t.map(d => d.year);
+  familyChart.data.datasets[0].data = t.map(d => d.births);
+  familyChart.data.datasets[0].label = 'Aiden spelling family';
+  familyChart.update();
+  document.getElementById('btn-family-spelling').classList.add('active');
+  document.getElementById('btn-family-yden').classList.remove('active');
+});
+</script>
+
+</body>
+</html>
