@@ -78,12 +78,6 @@
   .hero {
     padding: 64px 0 56px;
   }
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1.55fr 1fr;
-    gap: 24px;
-    align-items: stretch;
-  }
 
   .chrome {
     background: var(--card);
@@ -116,15 +110,42 @@
   }
   .prompt { color: var(--muted); }
   .cmd { color: var(--paper); }
+
+  /* identity row: small circular avatar sits beside the name, printed
+     as if `whoami` resolved a user icon next to the account name */
+  .identity-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 16px 0 18px;
+  }
+  .avatar-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--card-border);
+    background: var(--ink-soft);
+  }
+  .avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(10%);
+  }
+  .identity-text { min-width: 0; }
   .out-name {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: clamp(30px, 5vw, 52px);
+    font-size: clamp(28px, 4.6vw, 44px);
     color: var(--paper);
-    margin: 14px 0 4px;
+    margin: 0 0 2px;
     letter-spacing: -0.02em;
+    line-height: 1.05;
   }
-  .out-role { color: var(--amber); font-size: 16px; margin-bottom: 18px; }
+  .out-role { color: var(--amber); font-size: 15px; }
   .out-line { color: var(--paper-dim); margin: 2px 0; }
   .out-line .key { color: var(--teal); }
 
@@ -142,33 +163,6 @@
     .cursor { animation: none; }
     html { scroll-behavior: auto; }
   }
-
-  /* profile photo frame — same window-chrome language as the terminal,
-     so it reads as "another pane" rather than a bolted-on headshot */
-  .avatar-frame { flex: 1; }
-  .avatar-frame .photo-wrap {
-    position: relative;
-    flex: 1;
-    min-height: 220px;
-  }
-  .avatar-frame img {
-    width: 100%;
-    height: 100%;
-    min-height: 220px;
-    object-fit: cover;
-    display: block;
-    filter: grayscale(15%);
-  }
-  .avatar-frame .photo-caption {
-    padding: 10px 16px;
-    border-top: 1px solid var(--card-border);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    display: flex;
-    justify-content: space-between;
-  }
-  .avatar-frame .photo-caption .amber { color: var(--amber); }
 
   .hero-sub {
     margin-top: 20px;
@@ -336,12 +330,8 @@
   .contact-links a:first-child { margin-left: 0; }
   .contact-links a:hover { color: var(--amber); }
 
-  @media (max-width: 860px) {
-    .hero-grid { grid-template-columns: 1fr; }
-    .avatar-frame .photo-wrap { min-height: 280px; }
-  }
-
   @media (max-width: 600px) {
+    .avatar-circle { width: 46px; height: 46px; }
     .hero { padding: 44px 0 40px; }
     .terminal-body { padding: 22px 18px 26px; font-size: 13px; }
     section { padding: 36px 0; }
@@ -364,34 +354,25 @@
 </header>
 
 <div class="wrap hero">
-  <div class="hero-grid">
-    <div class="chrome">
-      <div class="chrome-bar">
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      </div>
-      <div class="terminal-body">
-        <div class="prompt">$ <span class="cmd">whoami</span></div>
-        <div class="out-name">OdehUle</div>
-        <div class="out-role">Data Analyst</div>
-        <div class="out-line"><span class="key">focus</span>&nbsp; end-to-end analytics — cleaning, EDA, dashboards, documentation</div>
-        <div class="out-line"><span class="key">stack</span>&nbsp; Python · pandas · Power BI · SQL</div>
-        <div class="out-line"><span class="key">status</span>&nbsp; open to data analyst roles<span class="cursor"></span></div>
-      </div>
+  <div class="chrome">
+    <div class="chrome-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
-
-    <div class="chrome avatar-frame">
-      <div class="chrome-bar">
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        <span class="file-label">profile.jpg</span>
+    <div class="terminal-body">
+      <div class="prompt">$ <span class="cmd">whoami</span></div>
+      <div class="identity-row">
+        <div class="avatar-circle">
+          <!-- TODO: replace assets/profile.jpg with a real headshot (square crop works best) -->
+          <img src="assets/profile.jpg" alt="Portrait of Moses Odeh'Ule Udah">
+        </div>
+        <div class="identity-text">
+          <div class="out-name">OdehUle</div>
+          <div class="out-role">Data Analyst</div>
+        </div>
       </div>
-      <div class="photo-wrap">
-        <!-- TODO: replace assets/profile.jpg with a real headshot (square-ish crop works best here) -->
-        <img src="assets/profile.jpg" alt="Portrait of Moses Odeh'Ule Udah">
-      </div>
-      <div class="photo-caption">
-        <span>Moses Odeh'Ule Udah</span>
-        <span class="amber">Lagos, NG</span>
-      </div>
+      <div class="out-line"><span class="key">focus</span>&nbsp; end-to-end analytics — cleaning, EDA, dashboards, documentation</div>
+      <div class="out-line"><span class="key">stack</span>&nbsp; Python · pandas · Power BI · SQL</div>
+      <div class="out-line"><span class="key">status</span>&nbsp; open to data analyst roles<span class="cursor"></span></div>
     </div>
   </div>
 
