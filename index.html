@@ -19,7 +19,7 @@
     --amber: #d9a441;
     --teal: #4fa8a0;
     --radius: 10px;
-    --max-w: 880px;
+    --max-w: 1040px;
   }
 
   * { box-sizing: border-box; }
@@ -74,24 +74,40 @@
   .nav-links a:first-child { margin-left: 0; }
   .nav-links a:hover { color: var(--teal); }
 
-  /* ---------- Hero (terminal thesis) ---------- */
+  /* ---------- Hero (terminal thesis + profile frame) ---------- */
   .hero {
     padding: 64px 0 56px;
   }
-  .terminal {
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .chrome {
     background: var(--card);
     border: 1px solid var(--card-border);
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: 0 20px 60px -30px rgba(0,0,0,0.6);
-  }
-  .terminal-bar {
     display: flex;
+    flex-direction: column;
+  }
+  .chrome-bar {
+    display: flex;
+    align-items: center;
     gap: 7px;
     padding: 12px 16px;
     border-bottom: 1px solid var(--card-border);
   }
-  .dot { width: 10px; height: 10px; border-radius: 50%; background: #3a4451; }
+  .chrome-bar .file-label {
+    margin-left: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #3a4451; flex-shrink: 0; }
 
   .terminal-body {
     padding: 28px 28px 32px;
@@ -103,7 +119,7 @@
   .out-name {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: clamp(32px, 6vw, 52px);
+    font-size: clamp(30px, 5vw, 52px);
     color: var(--paper);
     margin: 14px 0 4px;
     letter-spacing: -0.02em;
@@ -127,11 +143,38 @@
     html { scroll-behavior: auto; }
   }
 
+  /* profile photo frame — same window-chrome language as the terminal,
+     so it reads as "another pane" rather than a bolted-on headshot */
+  .avatar-frame { flex: 1; }
+  .avatar-frame .photo-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 220px;
+  }
+  .avatar-frame img {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(15%);
+  }
+  .avatar-frame .photo-caption {
+    padding: 10px 16px;
+    border-top: 1px solid var(--card-border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+  .avatar-frame .photo-caption .amber { color: var(--amber); }
+
   .hero-sub {
     margin-top: 20px;
     color: var(--paper-dim);
     font-size: 16px;
-    max-width: 60ch;
+    max-width: 62ch;
   }
 
   /* ---------- Section label ---------- */
@@ -148,16 +191,44 @@
   section { padding: 48px 0; }
   section + section { border-top: 1px solid var(--card-border); }
 
-  /* ---------- Project cards ---------- */
+  /* ---------- Project tiles ---------- */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+  }
+
   .project {
     background: var(--card);
     border: 1px solid var(--card-border);
     border-radius: var(--radius);
-    padding: 28px;
-    margin-bottom: 24px;
+    overflow: hidden;
     transition: transform 0.15s ease, border-color 0.15s ease;
+    display: flex;
+    flex-direction: column;
   }
   .project:hover { transform: translateY(-2px); border-color: var(--teal); }
+
+  .project-media {
+    border-bottom: 1px solid var(--card-border);
+  }
+  .project-media .chrome-bar { padding: 10px 14px; }
+  .project-media .shot-wrap {
+    aspect-ratio: 16 / 9.4;
+    overflow: hidden;
+    background: var(--ink-soft);
+  }
+  .project-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+    transition: transform 0.35s ease;
+  }
+  .project:hover .project-media img { transform: scale(1.035); }
+
+  .project-body { padding: 24px 28px 28px; }
 
   .project-head {
     display: flex;
@@ -168,15 +239,14 @@
   }
   .project h3 {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 22px;
+    font-size: 21px;
     margin: 0 0 6px;
     color: var(--paper);
   }
   .project .tagline {
     color: var(--paper-dim);
-    font-size: 15px;
+    font-size: 14.5px;
     margin: 0 0 16px;
-    max-width: 58ch;
   }
   .status {
     font-family: 'IBM Plex Mono', monospace;
@@ -185,6 +255,7 @@
     border-radius: 100px;
     white-space: nowrap;
     border: 1px solid currentColor;
+    flex-shrink: 0;
   }
   .status.live { color: var(--teal); }
   .status.wip { color: var(--amber); }
@@ -253,7 +324,6 @@
     padding: 40px 0 60px;
     text-align: center;
   }
-  footer .mono { color: var(--muted); font-size: 13px; }
   .contact-links {
     display: flex;
     justify-content: center;
@@ -266,10 +336,17 @@
   .contact-links a:first-child { margin-left: 0; }
   .contact-links a:hover { color: var(--amber); }
 
+  @media (max-width: 860px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .avatar-frame .photo-wrap { min-height: 280px; }
+  }
+
   @media (max-width: 600px) {
     .hero { padding: 44px 0 40px; }
     .terminal-body { padding: 22px 18px 26px; font-size: 13px; }
     section { padding: 36px 0; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .project-body { padding: 20px 20px 24px; }
   }
 </style>
 </head>
@@ -287,19 +364,37 @@
 </header>
 
 <div class="wrap hero">
-  <div class="terminal">
-    <div class="terminal-bar">
-      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  <div class="hero-grid">
+    <div class="chrome">
+      <div class="chrome-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      </div>
+      <div class="terminal-body">
+        <div class="prompt">$ <span class="cmd">whoami</span></div>
+        <div class="out-name">OdehUle</div>
+        <div class="out-role">Data Analyst</div>
+        <div class="out-line"><span class="key">focus</span>&nbsp; end-to-end analytics — cleaning, EDA, dashboards, documentation</div>
+        <div class="out-line"><span class="key">stack</span>&nbsp; Python · pandas · Power BI · SQL</div>
+        <div class="out-line"><span class="key">status</span>&nbsp; open to data analyst roles<span class="cursor"></span></div>
+      </div>
     </div>
-    <div class="terminal-body">
-      <div class="prompt">$ <span class="cmd">whoami</span></div>
-      <div class="out-name">OdehUle</div>
-      <div class="out-role">Data Analyst</div>
-      <div class="out-line"><span class="key">focus</span>&nbsp; end-to-end analytics — cleaning, EDA, dashboards, documentation</div>
-      <div class="out-line"><span class="key">stack</span>&nbsp; Python · pandas · Power BI · SQL</div>
-      <div class="out-line"><span class="key">status</span>&nbsp; open to data analyst roles<span class="cursor"></span></div>
+
+    <div class="chrome avatar-frame">
+      <div class="chrome-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="file-label">profile.jpg</span>
+      </div>
+      <div class="photo-wrap">
+        <!-- TODO: replace assets/profile.jpg with a real headshot (square-ish crop works best here) -->
+        <img src="assets/profile.jpg" alt="Portrait of Moses Odeh'Ule Udah">
+      </div>
+      <div class="photo-caption">
+        <span>Moses Odeh'Ule Udah</span>
+        <span class="amber">Lagos, NG</span>
+      </div>
     </div>
   </div>
+
   <p class="hero-sub">
     I build complete analytics projects — from messy raw data to interactive
     dashboards — and document the reasoning behind every finding, not just
@@ -310,122 +405,173 @@
 <section id="projects" class="wrap">
   <p class="section-label">Projects</p>
 
-  <article class="project">
-    <div class="project-head">
-      <div>
-        <h3>E-Commerce Retention, Churn & Market Basket Intelligence</h3>
-        <p class="tagline">UCI Online Retail II transactions: cohort retention analysis, RFM segmentation, ML-based churn prediction (Logistic Regression vs Random Forest), and Apriori market basket cross-sell mining, delivered as a 4-page Power BI dashboard.</p>
+  <div class="projects-grid">
+
+    <article class="project">
+      <div class="project-media">
+        <div class="chrome-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="file-label">executive-overview.png</span>
+        </div>
+        <div class="shot-wrap">
+          <!-- Real dashboard export -->
+          <img src="assets/screenshots/ecommerce.png" alt="Power BI Executive Overview page: total GMV, customer base, churn AUC, and revenue-at-risk by segment">
+        </div>
       </div>
-      <span class="status live">live</span>
-    </div>
+      <div class="project-body">
+        <div class="project-head">
+          <div>
+            <h3>E-Commerce Retention, Churn & Market Basket Intelligence</h3>
+            <p class="tagline">UCI Online Retail II transactions: cohort retention analysis, RFM segmentation, ML-based churn prediction (Logistic Regression vs Random Forest), and Apriori market basket cross-sell mining, delivered as a 4-page Power BI dashboard.</p>
+          </div>
+          <span class="status live">live</span>
+        </div>
 
-    <div class="stat-block">
-      <div class="row"><span>customers</span><span>5,878</span></div>
-      <div class="row"><span>transactions</span><span>805,549</span></div>
-      <div class="row"><span>churn_auc</span><span>0.810 (Random Forest)</span></div>
-      <div class="row"><span>basket_rules</span><span>92 (max lift 33.32x)</span></div>
-    </div>
+        <div class="stat-block">
+          <div class="row"><span>customers</span><span>5,878</span></div>
+          <div class="row"><span>transactions</span><span>805,549</span></div>
+          <div class="row"><span>churn_auc</span><span>0.810 (Random Forest)</span></div>
+          <div class="row"><span>basket_rules</span><span>92 (max lift 33.32x)</span></div>
+        </div>
 
-    <div class="tags">
-      <span class="tag">python</span>
-      <span class="tag">scikit-learn</span>
-      <span class="tag">mlxtend</span>
-      <span class="tag">power-bi</span>
-    </div>
+        <div class="tags">
+          <span class="tag">python</span>
+          <span class="tag">scikit-learn</span>
+          <span class="tag">mlxtend</span>
+          <span class="tag">power-bi</span>
+        </div>
 
-    <div class="links">
-      <a href="https://github.com/OdehUle/ecommerce-retention-churn-market-basket" target="_blank" rel="noopener">→ github repo</a>
-      <!-- TODO: replace with your Power BI "Publish to web" link once generated -->
-      <a href="#" class="disabled">→ live dashboard (add link)</a>
-    </div>
-  </article>
-
-  <article class="project">
-    <div class="project-head">
-      <div>
-        <h3>USA.gov Clickstream Analytics</h3>
-        <p class="tagline">Bitly / 1.USA.gov click data: Python EDA plus an interactive Power BI dashboard tracking time zones and platform usage.</p>
+        <div class="links">
+          <a href="https://github.com/OdehUle/ecommerce-retention-churn-market-basket" target="_blank" rel="noopener">→ github repo</a>
+          <!-- TODO: replace with your Power BI "Publish to web" link once generated -->
+          <a href="#" class="disabled">→ live dashboard (add link)</a>
+        </div>
       </div>
-      <span class="status live">live</span>
-    </div>
+    </article>
 
-    <div class="stat-block">
-      <div class="row"><span>records</span><span>3,560</span></div>
-      <div class="row"><span>top_time_zone</span><span>America/New_York</span></div>
-      <div class="row"><span>windows_share</span><span>63.1%</span></div>
-    </div>
-
-    <div class="tags">
-      <span class="tag">python</span>
-      <span class="tag">pandas</span>
-      <span class="tag">power-bi</span>
-      <span class="tag">seaborn</span>
-    </div>
-
-    <div class="links">
-      <a href="https://github.com/OdehUle/usa-gov-clickstream-analytics" target="_blank" rel="noopener">→ github repo</a>
-      <!-- TODO: replace with your Power BI "Publish to web" link once generated -->
-      <a href="#" class="disabled">→ live dashboard (add link)</a>
-    </div>
-  </article>
-
-  <article class="project">
-    <div class="project-head">
-      <div>
-        <h3>MovieLens Age-Group Viewing Behavior</h3>
-        <p class="tagline">1M ratings across four age groups: genre preference, seasonality, engagement intensity, significance testing, and a simple item-based recommender.</p>
+    <article class="project">
+      <div class="project-media">
+        <div class="chrome-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="file-label">preview.png</span>
+        </div>
+        <div class="shot-wrap">
+          <!-- TODO: replace assets/screenshots/usa-gov.png with a real Power BI dashboard export -->
+          <img src="assets/screenshots/usa-gov.png" alt="Placeholder tile — swap in a screenshot of the USA.gov clickstream Power BI dashboard">
+        </div>
       </div>
-      <span class="status live">live</span>
-    </div>
+      <div class="project-body">
+        <div class="project-head">
+          <div>
+            <h3>USA.gov Clickstream Analytics</h3>
+            <p class="tagline">Bitly / 1.USA.gov click data: Python EDA plus an interactive Power BI dashboard tracking time zones and platform usage.</p>
+          </div>
+          <span class="status live">live</span>
+        </div>
 
-    <div class="stat-block">
-      <div class="row"><span>users</span><span>6,040</span></div>
-      <div class="row"><span>ratings</span><span>1,000,209</span></div>
-      <div class="row"><span>age_groups</span><span>Child · Youth · Adult · Older</span></div>
-    </div>
+        <div class="stat-block">
+          <div class="row"><span>records</span><span>3,560</span></div>
+          <div class="row"><span>top_time_zone</span><span>America/New_York</span></div>
+          <div class="row"><span>windows_share</span><span>63.1%</span></div>
+        </div>
 
-    <div class="tags">
-      <span class="tag">python</span>
-      <span class="tag">scipy</span>
-      <span class="tag">scikit-learn</span>
-      <span class="tag">collaborative-filtering</span>
-    </div>
+        <div class="tags">
+          <span class="tag">python</span>
+          <span class="tag">pandas</span>
+          <span class="tag">power-bi</span>
+          <span class="tag">seaborn</span>
+        </div>
 
-    <div class="links">
-      <a href="https://github.com/OdehUle/movielens-age-group-analytics" target="_blank" rel="noopener">→ github repo</a>
-      <!-- TODO: replace with your Power BI "Publish to web" link once generated -->
-      <a href="#" class="disabled">→ live dashboard (add link)</a>
-    </div>
-  </article>
-
-  <article class="project">
-    <div class="project-head">
-      <div>
-        <h3>US Baby Names: Naming Trends & Structure</h3>
-        <p class="tagline">15 years of SSA naming data: diversity index, gender-neutral naming shifts, trend velocity, and fuzzy-matched name-family clustering.</p>
+        <div class="links">
+          <a href="https://github.com/OdehUle/usa-gov-clickstream-analytics" target="_blank" rel="noopener">→ github repo</a>
+          <!-- TODO: replace with your Power BI "Publish to web" link once generated -->
+          <a href="#" class="disabled">→ live dashboard (add link)</a>
+        </div>
       </div>
-      <span class="status live">live</span>
-    </div>
+    </article>
 
-    <div class="stat-block">
-      <div class="row"><span>rows</span><span>488,343</span></div>
-      <div class="row"><span>unique_names</span><span>61,153</span></div>
-      <div class="row"><span>years</span><span>2011–2025</span></div>
-    </div>
+    <article class="project">
+      <div class="project-media">
+        <div class="chrome-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="file-label">preview.png</span>
+        </div>
+        <div class="shot-wrap">
+          <!-- TODO: replace assets/screenshots/movielens.png with a real screenshot/visual from this project -->
+          <img src="assets/screenshots/movielens.png" alt="Placeholder tile — swap in a screenshot of the MovieLens age-group analysis">
+        </div>
+      </div>
+      <div class="project-body">
+        <div class="project-head">
+          <div>
+            <h3>MovieLens Age-Group Viewing Behavior</h3>
+            <p class="tagline">1M ratings across four age groups: genre preference, seasonality, engagement intensity, significance testing, and a simple item-based recommender.</p>
+          </div>
+          <span class="status live">live</span>
+        </div>
 
-    <div class="tags">
-      <span class="tag">python</span>
-      <span class="tag">scipy</span>
-      <span class="tag">rapidfuzz</span>
-      <span class="tag">power-bi</span>
-    </div>
+        <div class="stat-block">
+          <div class="row"><span>users</span><span>6,040</span></div>
+          <div class="row"><span>ratings</span><span>1,000,209</span></div>
+          <div class="row"><span>age_groups</span><span>Child · Youth · Adult · Older</span></div>
+        </div>
 
-    <div class="links">
-      <a href="https://github.com/OdehUle/us-babynames-2011-2025-analytics" target="_blank" rel="noopener">→ github repo</a>
-      <a href="https://odehule.github.io/babynames-dashboard.html" target="_blank" rel="noopener">→ live dashboard</a>
-    </div>
-  </article>
+        <div class="tags">
+          <span class="tag">python</span>
+          <span class="tag">scipy</span>
+          <span class="tag">scikit-learn</span>
+          <span class="tag">collaborative-filtering</span>
+        </div>
 
+        <div class="links">
+          <a href="https://github.com/OdehUle/movielens-age-group-analytics" target="_blank" rel="noopener">→ github repo</a>
+          <!-- TODO: replace with your Power BI "Publish to web" link once generated -->
+          <a href="#" class="disabled">→ live dashboard (add link)</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="project">
+      <div class="project-media">
+        <div class="chrome-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="file-label">preview.png</span>
+        </div>
+        <div class="shot-wrap">
+          <!-- TODO: replace assets/screenshots/babynames.png with a real Power BI dashboard export -->
+          <img src="assets/screenshots/babynames.png" alt="Placeholder tile — swap in a screenshot of the US Baby Names Power BI dashboard">
+        </div>
+      </div>
+      <div class="project-body">
+        <div class="project-head">
+          <div>
+            <h3>US Baby Names: Naming Trends & Structure</h3>
+            <p class="tagline">15 years of SSA naming data: diversity index, gender-neutral naming shifts, trend velocity, and fuzzy-matched name-family clustering.</p>
+          </div>
+          <span class="status live">live</span>
+        </div>
+
+        <div class="stat-block">
+          <div class="row"><span>rows</span><span>488,343</span></div>
+          <div class="row"><span>unique_names</span><span>61,153</span></div>
+          <div class="row"><span>years</span><span>2011–2025</span></div>
+        </div>
+
+        <div class="tags">
+          <span class="tag">python</span>
+          <span class="tag">scipy</span>
+          <span class="tag">rapidfuzz</span>
+          <span class="tag">power-bi</span>
+        </div>
+
+        <div class="links">
+          <a href="https://github.com/OdehUle/us-babynames-2011-2025-analytics" target="_blank" rel="noopener">→ github repo</a>
+          <a href="https://odehule.github.io/babynames-dashboard.html" target="_blank" rel="noopener">→ live dashboard</a>
+        </div>
+      </div>
+    </article>
+
+  </div>
 </section>
 
 <section id="about" class="wrap">
